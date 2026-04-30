@@ -1,0 +1,67 @@
+# -- Container image
+image:
+  name: ghcr.io/example/ln
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# -- Number of replicas
+replicaCount: 1
+
+# -- Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+# -- Container port
+containerPort: 3000
+
+# -- Resource limits
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+# -- Liveness / readiness probes
+probes:
+  liveness:
+    path: /
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  readiness:
+    path: /
+    initialDelaySeconds: 3
+    periodSeconds: 5
+
+# -- Environment variables (non-secret)
+env:
+  BASE_URL: "https://ln.example.com"
+  VALKEY_URL: "redis://valkey:6379"
+  PORT: "3000"
+  SESSION_TTL_SECONDS: "604800"
+
+# -- OAuth configuration (non-secret overrides)
+# These are passed as env vars. For sensitive values, use existingSecret.
+oauth:
+  hd: ""
+  authUrl: ""
+  tokenUrl: ""
+  userinfoUrl: ""
+  scope: ""
+
+# -- Reference to an existing Secret containing sensitive keys.
+# The secret should have these keys:
+#   OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, COOKIE_SECRET, ADMIN_EMAILS
+existingSecret: "ln-secrets"
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Node selector
+nodeSelector: {}
+
+# -- Tolerations
+tolerations: []
