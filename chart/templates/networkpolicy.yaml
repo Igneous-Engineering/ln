@@ -16,7 +16,7 @@ spec:
     - Egress
   ingress:
     - ports:
-        - port: {{ .Values.containerPort }}
+        - port: {{ .Values.server.containerPort }}
           protocol: TCP
   egress:
     # DNS resolution
