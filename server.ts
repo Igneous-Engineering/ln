@@ -20,6 +20,7 @@ import { renderDashboard } from "./pages/dashboard";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const SITE_HOST = BASE_URL.replace(/^https?:\/\//, "");
+const IS_PROD = process.env.NODE_ENV === "production";
 
 // ---------------------------------------------------------------------------
 // Favicon (inline SVG → ICO-ish PNG)
@@ -56,6 +57,17 @@ const server = Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
     const path = url.pathname;
+
+    // ---- Valkey health gate ----
+    if (!db.isHealthy()) {
+      if (path.startsWith("/_/api/")) {
+        return Response.json(
+          { error: "Service temporarily unavailable." },
+          { status: 503, headers: { "Retry-After": "30" } },
+        );
+      }
+      return renderDownPage();
+    }
 
     // ---- Auth routes ----
     if (path === "/_/auth/login") {
@@ -101,6 +113,16 @@ const server = Bun.serve({
     const claimable = user ? await db.isPathAvailable(path) : false;
     return render404(path, claimable);
   },
+
+  // Production error handler — hide stack traces from clients
+  error(error) {
+    console.error("[server] Unhandled error:", error);
+    if (IS_PROD) {
+      return renderDownPage();
+    }
+    // In dev, return undefined to let Bun show its detailed error page
+    return undefined;
+  },
 });
 
 console.log(`✨ ln running`);
@@ -120,6 +142,80 @@ function shutdown() {
 
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
+
+// ---------------------------------------------------------------------------
+// 503 "down" page — used for unhandled errors (prod) and Valkey outages
+// ---------------------------------------------------------------------------
+
+function renderDownPage(): Response {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Service Unavailable — ${SITE_HOST}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #06060b; color: #e8e8f0;
+    }
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 20px;
+      padding: 3rem;
+      max-width: 480px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+    }
+    .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fc5c5c, #fc8c5c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.3rem; margin-bottom: 0.75rem; }
+    p { color: #8888a0; font-size: 0.95rem; line-height: 1.6; }
+    .pulse {
+      display: inline-block;
+      width: 10px; height: 10px;
+      background: #fc5c5c;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      animation: pulse 2s ease-in-out infinite;
+      vertical-align: middle;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="code">503</div>
+    <h1>Service Unavailable</h1>
+    <p><span class="pulse"></span>We're working on it. Please try again shortly.</p>
+  </div>
+</body>
+</html>`;
+
+  return new Response(html, {
+    status: 503,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Retry-After": "30",
+    },
+  });
+}
 
 // ---------------------------------------------------------------------------
 // 404 page

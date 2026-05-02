@@ -29,20 +29,18 @@ const OAUTH_SCOPE = process.env.OAUTH_SCOPE ?? "openid email profile";
 // State tokens (CSRF protection) — stored in Valkey with short TTL
 // ---------------------------------------------------------------------------
 
-const redis = db.getClient();
-
 async function createState(): Promise<string> {
   const bytes = new Uint8Array(24);
   crypto.getRandomValues(bytes);
   const state = Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  await redis.set(`oauth_state:${state}`, "1", "EX", "600"); // 10 min
+  await db.getClient().set(`oauth_state:${state}`, "1", "EX", "600"); // 10 min
   return state;
 }
 
 async function validateState(state: string): Promise<boolean> {
-  const deleted = await redis.del(`oauth_state:${state}`);
+  const deleted = await db.getClient().del(`oauth_state:${state}`);
   return deleted > 0;
 }
 

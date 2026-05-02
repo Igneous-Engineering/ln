@@ -43,12 +43,58 @@ export interface SessionData {
 // ---------------------------------------------------------------------------
 
 const VALKEY_URL = process.env.VALKEY_URL ?? "redis://localhost:6379";
-console.log(`[db] Connecting to Valkey at ${VALKEY_URL}`);
-let redis: RedisClient = new RedisClient(VALKEY_URL);
+const MAX_DISCONNECT_MS = 5 * 60 * 1000; // 5 minutes
 
-/** Replace the active client (used by tests to point at an ephemeral instance). */
+console.log(`[db] Connecting to Valkey at ${VALKEY_URL}`);
+let redis: RedisClient = new RedisClient(VALKEY_URL, {
+  autoReconnect: true,
+  maxRetries: 50,
+  enableOfflineQueue: true,
+});
+
+// ---------------------------------------------------------------------------
+// Connection health tracking
+// ---------------------------------------------------------------------------
+
+let valkeyConnected = false;
+let disconnectedAt = 0;
+
+function wireEvents(client: RedisClient): void {
+  client.onconnect = () => {
+    valkeyConnected = true;
+    disconnectedAt = 0;
+    console.log("[db] Connected to Valkey");
+  };
+  client.onclose = (error) => {
+    valkeyConnected = false;
+    if (!disconnectedAt) disconnectedAt = Date.now();
+    console.error("[db] Valkey connection lost:", error);
+  };
+}
+
+wireEvents(redis);
+
+/** Returns true when the Valkey connection is alive. */
+export function isHealthy(): boolean {
+  return valkeyConnected;
+}
+
+// Watchdog: exit the process if Valkey has been unreachable for >5 minutes.
+// The container orchestrator (restart policy / K8s) will restart us.
+setInterval(() => {
+  if (!valkeyConnected && disconnectedAt
+    && Date.now() - disconnectedAt > MAX_DISCONNECT_MS) {
+    console.error("[db] Valkey unreachable for >5 minutes, exiting");
+    process.exit(1);
+  }
+}, 10_000);
+
+/** Replace the active client (used by tests to point at an ephemeral instance).
+ * DO NOT USE outside of tests, this code does not update pre-existing references to the client.
+*/
 export function setClient(client: RedisClient): void {
   redis = client;
+  wireEvents(redis);
 }
 
 /** Expose for health-checks and tests. */

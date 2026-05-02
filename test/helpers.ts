@@ -55,6 +55,9 @@ export async function flush(): Promise<void> {
 /** Stop and remove the ephemeral Valkey container. */
 export async function stopValkey(): Promise<void> {
   try {
+    // Detach event handlers before closing so the db module's onclose
+    // doesn't fire for an intentional test teardown.
+    client.onclose = () => {};
     client.close();
   } catch { /* ignore */ }
   try {

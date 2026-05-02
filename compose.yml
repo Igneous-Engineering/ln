@@ -36,6 +36,7 @@ services:
       ADMIN_EMAILS: "${ADMIN_EMAILS}"
       SESSION_TTL_SECONDS: "${SESSION_TTL_SECONDS:-604800}"
       PORT: "3000"
+      NODE_ENV: "production"
 
 volumes:
   valkey-data:
