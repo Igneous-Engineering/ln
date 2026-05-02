@@ -5,3 +5,8 @@ dist
 *.log
 .git
 .gitignore
+test
+chart
+LICENSE
+README.md
+compose.yml

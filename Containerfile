@@ -27,9 +27,11 @@ RUN bun build --compile --minify --sourcemap=none \
 ARG TARGETPLATFORM
 FROM --platform=${TARGETPLATFORM} gcr.io/distroless/cc-debian12:nonroot
 
-COPY --from=build /app/ln-server /app/ln-server
+COPY --from=build --chown=nonroot:nonroot --chmod=555 /app/ln-server /app/ln-server
 
 WORKDIR /app
+
+USER nonroot:nonroot
 
 EXPOSE 3000
 
