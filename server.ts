@@ -43,7 +43,6 @@ const server = Bun.serve({
 
   // Static routes
   routes: {
-    "/": () => renderWelcomePage(),
     "/favicon.ico": () =>
       new Response(FAVICON_SVG, {
         headers: {
@@ -67,6 +66,15 @@ const server = Bun.serve({
         );
       }
       return renderDownPage();
+    }
+
+    // ---- Landing page ----
+    if (path === "/") {
+      const user = await auth.getUser(req);
+      if (user) {
+        return Response.redirect(`${BASE_URL}/_/`, 302);
+      }
+      return renderWelcomePage();
     }
 
     // ---- Auth routes ----
