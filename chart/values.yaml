@@ -1,8 +1,8 @@
 # -- Container image
 image:
-  name: ghcr.io/example/ln
+  repository: ghcr.io/igneous-engineering/ln
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 # -- Number of replicas
 replicaCount: 1
