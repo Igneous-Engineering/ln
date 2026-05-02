@@ -43,6 +43,7 @@ export interface SessionData {
 // ---------------------------------------------------------------------------
 
 const VALKEY_URL = process.env.VALKEY_URL ?? "redis://localhost:6379";
+console.log(`[db] Connecting to Valkey at ${VALKEY_URL}`);
 let redis: RedisClient = new RedisClient(VALKEY_URL);
 
 /** Replace the active client (used by tests to point at an ephemeral instance). */

@@ -135,7 +135,9 @@ const server = Bun.serve({
   },
 });
 
-console.log(`✨ ln running at ${server.url}`);
+console.log(`✨ ln running`);
+console.log(`   listening on ${server.hostname}:${server.port}`);
+console.log(`   public url  ${BASE_URL}`);
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown

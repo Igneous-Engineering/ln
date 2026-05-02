@@ -2,11 +2,13 @@ services:
   valkey:
     image: docker.io/valkey/valkey:8-alpine
     restart: unless-stopped
+    ports:
+      - "6379:6379"
     volumes:
       - valkey-data:/data
-    command: ["valkey-server", "--save", "60", "1", "--loglevel", "warning"]
+    command: [ "valkey-server", "--save", "60", "1", "--loglevel", "warning" ]
     healthcheck:
-      test: ["CMD", "valkey-cli", "ping"]
+      test: [ "CMD", "valkey-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -23,7 +25,7 @@ services:
         condition: service_healthy
     environment:
       VALKEY_URL: "redis://valkey:6379"
-      BASE_URL: "https://ln.czar.haus"
+      BASE_URL: "http://localhost:3000"
       OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
       OAUTH_CLIENT_SECRET: "${OAUTH_CLIENT_SECRET}"
       OAUTH_HD: "${OAUTH_HD:-}"
@@ -32,7 +34,6 @@ services:
       OAUTH_USERINFO_URL: "${OAUTH_USERINFO_URL:-}"
       OAUTH_SCOPE: "${OAUTH_SCOPE:-}"
       ADMIN_EMAILS: "${ADMIN_EMAILS}"
-      COOKIE_SECRET: "${COOKIE_SECRET}"
       SESSION_TTL_SECONDS: "${SESSION_TTL_SECONDS:-604800}"
       PORT: "3000"
 
