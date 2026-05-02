@@ -4,7 +4,7 @@
   "description": "Simple namespaced URL shortening service",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch server.ts",
+    "dev": "BASE_URL=http://localhost:${PORT:-3030} bun --watch server.ts",
     "start": "bun server.ts"
   },
   "dependencies": {},

@@ -19,13 +19,13 @@ services:
       dockerfile: Containerfile
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3030:3030"
     depends_on:
       valkey:
         condition: service_healthy
     environment:
       VALKEY_URL: "redis://valkey:6379"
-      BASE_URL: "http://localhost:3000"
+      BASE_URL: "http://localhost:3030"
       OAUTH_CLIENT_ID: "${OAUTH_CLIENT_ID}"
       OAUTH_CLIENT_SECRET: "${OAUTH_CLIENT_SECRET}"
       OAUTH_HD: "${OAUTH_HD:-}"
@@ -35,7 +35,7 @@ services:
       OAUTH_SCOPE: "${OAUTH_SCOPE:-}"
       ADMIN_EMAILS: "${ADMIN_EMAILS}"
       SESSION_TTL_SECONDS: "${SESSION_TTL_SECONDS:-604800}"
-      PORT: "3000"
+      PORT: "3030"
       NODE_ENV: "production"
 
 volumes:

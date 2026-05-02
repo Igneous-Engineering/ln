@@ -98,7 +98,8 @@ async function handleCreateLink(
     return Response.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { path, url } = body;
+  const { url } = body;
+  let { path } = body;
 
   if (!path || !url) {
     return Response.json(
@@ -107,13 +108,12 @@ async function handleCreateLink(
     );
   }
 
-  // Validate path format
+  // Auto-prepend leading slash if the user omitted it
   if (!path.startsWith("/")) {
-    return Response.json(
-      { error: "Path must start with '/'." },
-      { status: 400 },
-    );
+    path = "/" + path;
   }
+
+  // Validate path format
   if (!/^\/[a-zA-Z0-9_\-\/]+$/.test(path)) {
     return Response.json(
       { error: "Path may only contain letters, numbers, hyphens, underscores, and slashes." },

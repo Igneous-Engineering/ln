@@ -172,6 +172,25 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
       margin-bottom: 0.4rem;
     }
 
+    .input-prefix-wrap {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .input-prefix {
+      display: flex;
+      align-items: center;
+      padding: 0 0.6rem;
+      border-radius: 10px 0 0 10px;
+      border: 1px solid var(--border);
+      border-right: none;
+      background: rgba(255,255,255,0.08);
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      user-select: none;
+    }
+
     input[type="text"], input[type="url"] {
       width: 100%;
       padding: 0.7rem 1rem;
@@ -183,6 +202,10 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
       font-size: 0.9rem;
       outline: none;
       transition: border-color 0.2s;
+    }
+
+    .input-prefix-wrap input {
+      border-radius: 0 10px 10px 0;
     }
 
     input:focus {
@@ -459,7 +482,10 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
       <form class="create-form" id="create-form">
         <div class="input-group">
           <label for="input-path">Path</label>
-          <input type="text" id="input-path" name="path" placeholder="/yt" autocomplete="off" required>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">/</span>
+            <input type="text" id="input-path" name="path" placeholder="yt" autocomplete="off" required>
+          </div>
         </div>
         <div class="input-group" style="flex:2;">
           <label for="input-url">Destination URL</label>
@@ -580,13 +606,10 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
     // ---- Create link ----
     document.getElementById('create-form').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const path = document.getElementById('input-path').value.trim();
+      const rawPath = document.getElementById('input-path').value.trim();
       const url = document.getElementById('input-url').value.trim();
-
-      if (!path.startsWith('/')) {
-        toast('Path must start with /', 'error');
-        return;
-      }
+      // Strip leading slash if user typed one — the API auto-prepends it
+      const path = rawPath.startsWith('/') ? rawPath : '/' + rawPath;
 
       try {
         await api('/_/api/links', {
@@ -722,7 +745,9 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
       return d.innerHTML;
     }
     function escAttr(s) {
-      return s.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, "\\\\'").replace(/"/g, '&quot;');
+      var bs = String.fromCharCode(92);
+      var qt = String.fromCharCode(38) + 'quot;';
+      return s.replaceAll(bs, bs+bs).replaceAll("'", bs+"'").replaceAll('"', qt);
     }
 
     // ---- Init ----
@@ -732,7 +757,8 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
     if (location.hash.startsWith('#claim=')) {
       const claimPath = decodeURIComponent(location.hash.slice(7));
       if (claimPath) {
-        document.getElementById('input-path').value = claimPath;
+        // Strip leading slash — the input prefix already shows it
+        document.getElementById('input-path').value = claimPath.startsWith('/') ? claimPath.slice(1) : claimPath;
         document.getElementById('input-url').focus();
         history.replaceState(null, '', location.pathname);
       }
@@ -742,7 +768,10 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
 </html>`;
 
   return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
   });
 }
 

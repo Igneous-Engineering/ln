@@ -20,10 +20,10 @@ const SITE_HOST = BASE_URL.replace(/^https?:\/\//, "");
 const SESSION_TTL = parseInt(process.env.SESSION_TTL_SECONDS ?? "604800", 10);
 const OAUTH_HD = process.env.OAUTH_HD ?? "";
 
-const OAUTH_AUTH_URL = process.env.OAUTH_AUTH_URL ?? "https://accounts.google.com/o/oauth2/v2/auth";
-const OAUTH_TOKEN_URL = process.env.OAUTH_TOKEN_URL ?? "https://oauth2.googleapis.com/token";
-const OAUTH_USERINFO_URL = process.env.OAUTH_USERINFO_URL ?? "https://www.googleapis.com/oauth2/v2/userinfo";
-const OAUTH_SCOPE = process.env.OAUTH_SCOPE ?? "openid email profile";
+const OAUTH_AUTH_URL = process.env.OAUTH_AUTH_URL || "https://accounts.google.com/o/oauth2/v2/auth";
+const OAUTH_TOKEN_URL = process.env.OAUTH_TOKEN_URL || "https://oauth2.googleapis.com/token";
+const OAUTH_USERINFO_URL = process.env.OAUTH_USERINFO_URL || "https://www.googleapis.com/oauth2/v2/userinfo";
+const OAUTH_SCOPE = process.env.OAUTH_SCOPE || "openid email profile";
 
 // ---------------------------------------------------------------------------
 // State tokens (CSRF protection) — stored in Valkey with short TTL
@@ -56,12 +56,15 @@ export function getSessionToken(req: Request): string | null {
   return found?.[1] ?? null;
 }
 
+const IS_SECURE = BASE_URL.startsWith("https://");
+const COOKIE_FLAGS = `HttpOnly;${IS_SECURE ? " Secure;" : ""} SameSite=Lax; Path=/`;
+
 export function sessionCookie(token: string, maxAge: number): string {
-  return `ln_session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${maxAge}`;
+  return `ln_session=${token}; ${COOKIE_FLAGS}; Max-Age=${maxAge}`;
 }
 
 export function clearSessionCookie(): string {
-  return `ln_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  return `ln_session=; ${COOKIE_FLAGS}; Max-Age=0`;
 }
 
 // ---------------------------------------------------------------------------
