@@ -421,14 +421,17 @@ export function renderDashboard(user: SessionData, isAdmin: boolean): Response {
     /* ---- Edit inline ---- */
     .edit-input {
       width: 100%;
-      padding: 0.4rem 0.6rem;
+      height: 1.44rem;
+      padding: 0 0.5rem;
       border-radius: 6px;
       border: 1px solid var(--border-focus);
       background: var(--bg-input);
       color: var(--text-primary);
       font-family: var(--mono);
       font-size: 0.85rem;
+      line-height: 1.44rem;
       outline: none;
+      box-sizing: content-box;
     }
 
     .btn-save {
