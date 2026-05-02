@@ -32,19 +32,6 @@ const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"
 </svg>`;
 
 // ---------------------------------------------------------------------------
-// Setup script templates (rendered once at startup)
-// ---------------------------------------------------------------------------
-
-function renderTemplate(content: string): string {
-  return content
-    .replaceAll("{{SITE_HOST}}", SITE_HOST)
-    .replaceAll("{{BASE_URL}}", BASE_URL);
-}
-
-const setupSh = renderTemplate(await Bun.file("./setup.sh.tmpl").text());
-const setupPs1 = renderTemplate(await Bun.file("./setup.ps1.tmpl").text());
-
-// ---------------------------------------------------------------------------
 // Boot
 // ---------------------------------------------------------------------------
 
@@ -69,25 +56,6 @@ const server = Bun.serve({
   async fetch(req) {
     const url = new URL(req.url);
     const path = url.pathname;
-
-    // ---- Setup scripts (templated with SITE_HOST) ----
-    if (path === "/_/setup.sh") {
-      return new Response(setupSh, {
-        headers: {
-          "Content-Type": "text/x-shellscript; charset=utf-8",
-          "Content-Disposition": 'inline; filename="ln-setup.sh"',
-        },
-      });
-    }
-
-    if (path === "/_/setup.ps1") {
-      return new Response(setupPs1, {
-        headers: {
-          "Content-Type": "text/plain; charset=utf-8",
-          "Content-Disposition": 'inline; filename="ln-setup.ps1"',
-        },
-      });
-    }
 
     // ---- Auth routes ----
     if (path === "/_/auth/login") {

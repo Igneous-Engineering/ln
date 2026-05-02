@@ -28,8 +28,6 @@ ARG TARGETPLATFORM
 FROM --platform=${TARGETPLATFORM} gcr.io/distroless/cc-debian12:nonroot
 
 COPY --from=build /app/ln-server /app/ln-server
-COPY --from=build /app/setup.sh.tmpl /app/setup.sh.tmpl
-COPY --from=build /app/setup.ps1.tmpl /app/setup.ps1.tmpl
 
 WORKDIR /app
 

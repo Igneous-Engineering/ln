@@ -500,49 +500,6 @@ export function renderWelcomePage(): Response {
     </div>
   </section>
 
-  <!-- Local DNS Setup -->
-  <section id="local-dns">
-    <div class="section-label">🔗 Use anywhere</div>
-    <h2>Make <code style="font-family:var(--mono);color:var(--accent-2);background:none;">http://ln/yt</code> work everywhere</h2>
-    <p class="section-desc">
-      Add <code>ln</code> as a local hostname so short links work in
-      <strong>any</strong> app — curl, hyperlinks, documents, Slack, scripts.
-    </p>
-
-    <div class="steps" style="grid-template-columns: 1fr;">
-      <div class="step">
-        <div class="step-num">one-line install</div>
-        <h3>Linux &amp; macOS</h3>
-        <p style="margin-bottom: 1rem;">Run this in your terminal:</p>
-        <div style="position:relative;">
-          <pre style="background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;font-family:var(--mono);font-size:0.85rem;color:var(--accent-2);overflow-x:auto;margin:0;"><code id="install-cmd">curl -fsSL ${escapeHtml(BASE_URL)}/_/setup.sh | sudo bash</code></pre>
-          <button onclick="navigator.clipboard.writeText(document.getElementById('install-cmd').textContent);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',1500)" style="position:absolute;top:0.6rem;right:0.6rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-muted);font-size:0.7rem;padding:0.25rem 0.6rem;cursor:pointer;font-family:var(--mono);">Copy</button>
-        </div>
-        <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-muted);">
-          To uninstall: <code>curl -fsSL ${escapeHtml(BASE_URL)}/_/setup.sh | sudo bash -s -- --remove</code>
-        </p>
-      </div>
-    </div>
-
-    <div class="steps" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 1.5rem;">
-      <div class="step">
-        <div class="step-num">after setup</div>
-        <h3>Terminal</h3>
-        <p><code>curl -L http://ln/yt</code></p>
-      </div>
-      <div class="step">
-        <div class="step-num">after setup</div>
-        <h3>Browser URL bar</h3>
-        <p><code>http://ln/yt</code></p>
-      </div>
-      <div class="step">
-        <div class="step-num">after setup</div>
-        <h3>Hyperlinks &amp; docs</h3>
-        <p><code>&lt;a href="http://ln/yt"&gt;</code></p>
-      </div>
-    </div>
-  </section>
-
   <!-- Browser Setup -->
   <section id="browser-setup">
     <div class="section-label">⚡ Power user tip</div>
