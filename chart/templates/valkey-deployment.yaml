@@ -23,6 +23,7 @@ spec:
         app.kubernetes.io/component: datastore
     spec:
       automountServiceAccountToken: false
+      hostUsers: {{ .Values.hostUsers | default false }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 999

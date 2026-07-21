@@ -1,3 +1,8 @@
+# -- Run pods in their own user namespace, so container root maps to an
+# unprivileged host UID. Applies to every pod in the release. Requires the
+# UserNamespacesSupport feature gate.
+hostUsers: false
+
 # ---------------------------------------------------------------------------
 # ln server
 # ---------------------------------------------------------------------------

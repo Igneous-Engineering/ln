@@ -24,6 +24,7 @@ spec:
       {{- end }}
     spec:
       automountServiceAccountToken: false
+      hostUsers: {{ .Values.hostUsers | default false }}
       serviceAccountName: {{ .Release.Name }}
       securityContext:
         runAsNonRoot: true
